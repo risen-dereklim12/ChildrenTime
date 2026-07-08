@@ -101,4 +101,5 @@ Find your bot on Telegram and type `/start` to see the greeting message. You can
 - *"What is the weather like right now?"*
 - *"Show me free things to do with kids in Singapore"* or *"Tell me about Gardens by the Bay"*
 - *"How do I get from Changi Airport to Marina Bay Sands?"*
+- *"How do I get to East Coast Park from here?"* (you can share your location first or follow the prompt to send it)
 - *"When is the next bus arriving at stop 01112?"*

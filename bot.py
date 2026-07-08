@@ -360,6 +360,53 @@ TRANSIT_ROUTES = {
     )
 }
 
+# --- Popular Singapore Landmarks for Location Matching ---
+LANDMARKS = {
+    "Changi Airport": (1.3644, 103.9915),
+    "Gardens by the Bay": (1.2816, 103.8636),
+    "Universal Studios Singapore": (1.2540, 103.8238),
+    "Singapore Zoo": (1.4043, 103.7930),
+    "Merlion Park": (1.2868, 103.8545),
+    "Orchard Road": (1.3048, 103.8318),
+    "Marina Bay Sands": (1.2823, 103.8585),
+    "Sentosa Island": (1.2494, 103.8303),
+    "Jurong Bird Park / Jurong Lake Gardens": (1.3392, 103.7058),
+    "East Coast Park": (1.3008, 103.9126),
+    "Raffles Place MRT": (1.2839, 103.8515),
+    "City Hall MRT": (1.2929, 103.8526),
+    "Dhoby Ghaut MRT": (1.2989, 103.8462),
+    "Outram Park MRT": (1.2801, 103.8394),
+    "Bugis MRT": (1.3007, 103.8561),
+    "Woodlands MRT": (1.4368, 103.7865),
+    "Jurong East MRT": (1.3331, 103.7421),
+    "Tampines MRT": (1.3533, 103.9452),
+    "Serangoon MRT": (1.3506, 103.8728),
+    "Bishan MRT": (1.3508, 103.8497)
+}
+
+def get_nearest_landmark(lat, lon):
+    """Find the closest pre-mapped Singapore landmark using the Haversine formula."""
+    import math
+    min_dist = float('inf')
+    closest_name = "Singapore Central"
+    
+    for name, coords in LANDMARKS.items():
+        lat1, lon1 = math.radians(lat), math.radians(lon)
+        lat2, lon2 = math.radians(coords[0]), math.radians(coords[1])
+        
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+        a = math.sin(dlat/2)**2 + math.cos(lat1)*math.cos(lat2)*math.sin(dlon/2)**2
+        c = 2 * math.asin(math.sqrt(a))
+        r = 6371 # Radius of Earth in kilometers
+        dist = c * r
+        
+        if dist < min_dist:
+            min_dist = dist
+            closest_name = name
+            
+    return closest_name
+
 # --- Tool Implementations ---
 
 def get_current_weather():
@@ -606,7 +653,7 @@ TOOLS = [
     }
 ]
 
-def run_agent(user_message, chat_history=None):
+def run_agent(user_message, chat_history=None, chat_id=None):
     if not llm_client.is_configured():
         return (
             f"⚠️ LLM provider '{llm_client.provider}' is not configured properly. "
@@ -616,18 +663,37 @@ def run_agent(user_message, chat_history=None):
     if chat_history is None:
         chat_history = []
         
+    system_prompt = (
+        "You are a helpful, professional travel and family outing agent for Singapore. "
+        "You can check current weather, search attractions with descriptions & prices, "
+        "provide MRT/bus routes between popular points, and query bus arrival times at bus stops. "
+        "Always make sure to explain admission prices clearly if requested. "
+        "If the user asks about travelling somewhere, check if your transit route tool has directions. "
+        "Keep responses engaging, concise, and structured with clear markdown formatting. "
+        "Suggest next steps or other attractions/transport queries where appropriate."
+    )
+    
+    # Inject user's shared location if available
+    if chat_id and chat_id in user_locations:
+        loc = user_locations[chat_id]
+        nearest = get_nearest_landmark(loc["latitude"], loc["longitude"])
+        system_prompt += (
+            f"\n\nCURRENT USER LOCATION: The user has shared their live location: "
+            f"Latitude {loc['latitude']}, Longitude {loc['longitude']}. They are currently near {nearest}. "
+            f"If they ask for directions or travel options from 'here', 'my location', 'where I am', etc., "
+            f"assume their starting point (origin) is '{nearest}'."
+        )
+    else:
+        system_prompt += (
+            "\n\nCURRENT USER LOCATION: The user's current location is unknown. "
+            "If they ask for directions from 'here' or 'my location', you must politely ask them "
+            "to share their location using the Telegram attachment button so you can help them."
+        )
+        
     messages = [
         {
             "role": "system",
-            "content": (
-                "You are an helpful, professional Travel Agent Bot for Singapore. "
-                "You can check current weather, search attractions with descriptions & prices, "
-                "provide MRT/bus routes between popular points, and query bus arrival times at bus stops. "
-                "Always make sure to explain admission prices clearly if requested. "
-                "If the user asks about travelling somewhere, check if your transit route tool has directions. "
-                "Keep responses engaging, concise, and structured with clear markdown formatting. "
-                "Suggest next steps or other attractions/transport queries where appropriate."
-            )
+            "content": system_prompt
         }
     ]
     
@@ -708,6 +774,7 @@ def run_agent(user_message, chat_history=None):
 # --- Telegram Bot Handler ---
 
 chat_histories = {} # memory store for chat sessions: chat_id -> list of message dicts
+user_locations = {} # store for user locations: chat_id -> {"latitude": lat, "longitude": lon}
 
 if bot:
     @bot.message_handler(commands=['start', 'help'])
@@ -717,11 +784,26 @@ if bot:
             "I'm here to help you plan your family trips in Singapore! You can ask me:\n"
             "🌤️ *Weather:* \"What's the weather like right now?\"\n"
             "🎡 *Attractions & Prices:* \"Tell me about Gardens by the Bay\" or \"Which attractions are free?\"\n"
-            "🚇 *Directions:* \"How do I get from Changi Airport to MBS?\"\n"
+            "🚇 *Directions:* \"How do I get from Changi Airport to MBS?\" or \"How do I get to Singapore Zoo from here?\"\n"
             "🚌 *Bus Arrivals:* \"When is the next bus arriving at stop 01112?\"\n\n"
-            "How can I help you today?"
+            "📍 *Tip:* You can share your current location using the attachment button at any time, and I'll use it to give you directions from \"here\"!"
         )
         bot.reply_to(message, welcome_text, parse_mode="Markdown")
+
+    @bot.message_handler(content_types=['location'])
+    def handle_location(message):
+        chat_id = message.chat.id
+        lat = message.location.latitude
+        lon = message.location.longitude
+        user_locations[chat_id] = {"latitude": lat, "longitude": lon}
+        
+        nearest = get_nearest_landmark(lat, lon)
+        reply_text = (
+            f"📍 *Location Saved!*\n\n"
+            f"I see you are near *{nearest}*. "
+            f"Now you can ask me things like: \"How do I get to Gardens by the Bay from here?\""
+        )
+        bot.reply_to(message, reply_text, parse_mode="Markdown", reply_markup=telebot.types.ReplyKeyboardRemove())
 
     @bot.message_handler(func=lambda message: True)
     def handle_user_message(message):
@@ -737,8 +819,8 @@ if bot:
             
         history = chat_histories[chat_id]
         
-        # Get response from OpenAI Agent
-        agent_reply = run_agent(user_text, history)
+        # Get response from LLM Agent
+        agent_reply = run_agent(user_text, history, chat_id=chat_id)
         
         # Save to history
         history.append({"role": "user", "content": user_text})
@@ -748,13 +830,20 @@ if bot:
         if len(history) > 10:
             chat_histories[chat_id] = history[-10:]
             
+        # Determine if we should show the location request button
+        reply_markup = None
+        prompt_keywords = ["share your location", "provide your location", "send your location", "send me your location", "where you are"]
+        if any(kw in agent_reply.lower() for kw in prompt_keywords):
+            reply_markup = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+            reply_markup.add(telebot.types.KeyboardButton("📍 Share Location", request_location=True))
+            
         # Send reply
         try:
-            bot.reply_to(message, agent_reply, parse_mode="Markdown")
+            bot.reply_to(message, agent_reply, parse_mode="Markdown", reply_markup=reply_markup)
         except Exception as e:
             # Fallback if markdown parsing fails
             logger.warning(f"Failed to send with Markdown, trying plain text: {e}")
-            bot.reply_to(message, agent_reply)
+            bot.reply_to(message, agent_reply, reply_markup=reply_markup)
 
 
 # --- Main Entry Point ---
