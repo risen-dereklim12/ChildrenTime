@@ -466,13 +466,116 @@ def search_attractions(query=None, category=None):
     return json.dumps({"status": "success", "count": len(results), "attractions": results})
 
 
+def resolve_to_coords(loc_str):
+    """Resolve a location string (landmark name or coordinates) to a tuple of (lat, lon)."""
+    loc_clean = loc_str.lower().strip()
+    
+    # Try parsing as "latitude,longitude" coordinates
+    try:
+        parts = loc_clean.split(",")
+        if len(parts) == 2:
+            lat = float(parts[0].strip())
+            lon = float(parts[1].strip())
+            return lat, lon
+    except ValueError:
+        pass
+        
+    # Match against known landmarks
+    for name, coords in LANDMARKS.items():
+        if name.lower() in loc_clean or loc_clean in name.lower():
+            return coords
+            
+    return None
+
+def format_onemap_pt_route(response_json):
+    """Parse OneMap OTP public transport JSON response into human-readable steps."""
+    if "plan" not in response_json or "itineraries" not in response_json["plan"] or not response_json["plan"]["itineraries"]:
+        return "No public transport route found between the specified locations."
+        
+    itinerary = response_json["plan"]["itineraries"][0]
+    total_time = round(itinerary.get("duration", 0) / 60)
+    legs = itinerary.get("legs", [])
+    
+    directions = []
+    for i, leg in enumerate(legs):
+        mode = leg.get("mode", "UNKNOWN")
+        duration = round(leg.get("duration", 0) / 60)
+        from_name = leg.get("from", {}).get("name", "Origin")
+        to_name = leg.get("to", {}).get("name", "Destination")
+        
+        # Format the coordinates if name is coordinate-like
+        if from_name.replace(".", "").replace(",", "").replace("-", "").isdigit():
+            from_name = "your location"
+            
+        if mode == "WALK":
+            distance = round(leg.get("distance", 0))
+            directions.append(f"{i+1}. Walk from {from_name} to {to_name} (approx. {distance}m, {duration} mins)")
+        elif mode == "BUS":
+            bus_num = leg.get("route", "")
+            directions.append(f"{i+1}. Board Bus {bus_num} at {from_name} and ride to {to_name} ({duration} mins)")
+        elif mode in ["SUBWAY", "RAIL"]:
+            line_name = leg.get("route", "MRT")
+            directions.append(f"{i+1}. Board the MRT ({line_name}) from {from_name} to {to_name} ({duration} mins)")
+        else:
+            directions.append(f"{i+1}. Take {mode} from {from_name} to {to_name} ({duration} mins)")
+            
+    route_summary = f"Total travel time: ~{total_time} mins.\n\nRoute steps:\n" + "\n".join(directions)
+    return route_summary
+
 def get_transit_route(origin, destination):
     """Get transit route directions between popular locations in Singapore."""
     logger.info(f"Tool executed: get_transit_route (from={origin}, to={destination})")
+    
+    # Resolve locations to coordinates
+    origin_coords = resolve_to_coords(origin)
+    dest_coords = resolve_to_coords(destination)
+    
+    sdk_key = os.getenv("LTA_SDK_KEY")
+    
+    # Try calling OneMap Routing API if coordinates and token are available
+    if origin_coords and dest_coords and sdk_key:
+        try:
+            import datetime
+            now = datetime.datetime.now()
+            date_str = now.strftime("%m-%d-%Y")
+            time_str = now.strftime("%H:%M:%S")
+            
+            url = "https://www.onemap.gov.sg/api/public/routingsvc/route"
+            params = {
+                "start": f"{origin_coords[0]},{origin_coords[1]}",
+                "end": f"{dest_coords[0]},{dest_coords[1]}",
+                "routeType": "pt",
+                "date": date_str,
+                "time": time_str,
+                "mode": "transit"
+            }
+            headers = {
+                "Authorization": sdk_key
+            }
+            if len(sdk_key) > 50 and not sdk_key.startswith("Bearer "):
+                headers["Authorization"] = f"Bearer {sdk_key}"
+                
+            response = requests.get(url, params=params, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                res_data = response.json()
+                route_desc = format_onemap_pt_route(res_data)
+                return json.dumps({
+                    "status": "success",
+                    "origin": origin,
+                    "destination": destination,
+                    "directions": route_desc
+                })
+            else:
+                logger.warning(f"OneMap Routing API returned status {response.status_code}: {response.text}")
+        except Exception as e:
+            logger.error(f"Error calling OneMap Routing API: {e}")
+            
+    # Fallback to pre-mapped transit table
     origin_clean = origin.lower().strip()
     destination_clean = destination.lower().strip()
     
-    # Search for matching routes in pre-defined table
+    # Match names or nearby landmarks in pre-defined table
     for (o, d), route in TRANSIT_ROUTES.items():
         if (o in origin_clean or origin_clean in o) and (d in destination_clean or destination_clean in d):
             return json.dumps({
@@ -482,13 +585,18 @@ def get_transit_route(origin, destination):
                 "directions": route
             })
             
-    # General fallback instructions
+    # General offline instructions fallback
     directions = (
         f"To travel from '{origin}' to '{destination}' in Singapore:\n"
         "1. Board the nearest MRT train. Check the MRT transit map for transfer stations.\n"
         "2. If travelling to popular spots like Mandai (Zoo/Night Safari), exit at Khatib MRT and board the Mandai Shuttle.\n"
         "3. For customized public bus or train routes, we recommend searching 'Singapore transit directions' or using OneMap/Google Maps routing."
     )
+    
+    # Add a hint about live API failing
+    if sdk_key:
+        directions = "⚠️ Note: Live routing API query failed (please check your LTA_SDK_KEY). Displaying default offline directions:\n\n" + directions
+        
     return json.dumps({
         "status": "partial_match",
         "origin": origin,
@@ -619,7 +727,7 @@ TOOLS = [
                 "properties": {
                     "origin": {
                         "type": "string",
-                        "description": "The starting attraction name or location (e.g., 'Changi Airport', 'Gardens by the Bay')."
+                        "description": "The starting attraction name, location name, or latitude,longitude coordinates (e.g. 'Changi Airport', '1.2989,103.8462')."
                     },
                     "destination": {
                         "type": "string",
@@ -676,12 +784,12 @@ def run_agent(user_message, chat_history=None, chat_id=None):
     # Inject user's shared location if available
     if chat_id and chat_id in user_locations:
         loc = user_locations[chat_id]
-        nearest = get_nearest_landmark(loc["latitude"], loc["longitude"])
         system_prompt += (
             f"\n\nCURRENT USER LOCATION: The user has shared their live location: "
-            f"Latitude {loc['latitude']}, Longitude {loc['longitude']}. They are currently near {nearest}. "
+            f"Latitude {loc['latitude']}, Longitude {loc['longitude']}. "
             f"If they ask for directions or travel options from 'here', 'my location', 'where I am', etc., "
-            f"assume their starting point (origin) is '{nearest}'."
+            f"you MUST pass their exact coordinates '{loc['latitude']},{loc['longitude']}' as the 'origin' parameter "
+            f"to the routing tool get_transit_route."
         )
     else:
         system_prompt += (
