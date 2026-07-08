@@ -200,165 +200,55 @@ WMO_CODES = {
     95: "Thunderstorm ⛈️", 96: "Thunderstorm with slight hail ⛈️", 99: "Thunderstorm with heavy hail ⛈️"
 }
 
-# --- Singapore Attractions Database ---
-ATTRACTIONS = [
-    {
-        "name": "Gardens by the Bay",
-        "description": "A futuristic park featuring giant Supertrees, greenhouse conservatories (Flower Dome & Cloud Forest), and light shows.",
-        "location": "Marina Bay (Bayfront MRT)",
-        "prices": {
-            "adult": "$53 (Double Conservatories)",
-            "child": "$40 (3-12 years)",
-            "outdoor_gardens": "Free"
-        },
-        "opening_hours": "9:00 AM - 9:00 PM daily",
-        "category": "Nature/Park"
-    },
-    {
-        "name": "Universal Studios Singapore (USS)",
-        "description": "A world-class movie theme park located within Resorts World Sentosa, featuring rides, shows, and attractions based on popular films.",
-        "location": "Sentosa (HarbourFront MRT -> Sentosa Express)",
-        "prices": {
-            "adult": "$83",
-            "child": "$62 (4-12 years)"
-        },
-        "opening_hours": "10:00 AM - 7:00 PM daily",
-        "category": "Theme Park/Family"
-    },
-    {
-        "name": "Night Safari",
-        "description": "The world's first nocturnal zoo, offering a tram ride and walking trails to see animals in naturalistic nighttime habitats.",
-        "location": "Mandai (Khatib MRT -> Mandai Shuttle)",
-        "prices": {
-            "adult": "$55",
-            "child": "$38 (3-12 years)"
-        },
-        "opening_hours": "7:15 PM - 12:00 AM daily",
-        "category": "Wildlife/Zoo"
-    },
-    {
-        "name": "Singapore Zoo",
-        "description": "A world-renowned open-concept rainforest zoo known for its lush vegetation, animal shows, and interactive feeding sessions.",
-        "location": "Mandai (Khatib MRT -> Mandai Shuttle)",
-        "prices": {
-            "adult": "$49",
-            "child": "$34 (3-12 years)"
-        },
-        "opening_hours": "8:30 AM - 6:00 PM daily",
-        "category": "Wildlife/Zoo"
-    },
-    {
-        "name": "Singapore Flyer",
-        "description": "A giant observation wheel offering panoramic 360-degree views of the Singapore skyline and Marina Bay.",
-        "location": "Marina Centre (Promenade MRT)",
-        "prices": {
-            "adult": "$40",
-            "child": "$25 (3-12 years)"
-        },
-        "opening_hours": "10:00 AM - 10:00 PM daily",
-        "category": "Sightseeing/Views"
-    },
-    {
-        "name": "S.E.A. Aquarium",
-        "description": "One of the world's largest aquariums, home to more than 100,000 marine animals across 40 diverse habitats.",
-        "location": "Sentosa (HarbourFront MRT -> Sentosa Express)",
-        "prices": {
-            "adult": "$43",
-            "child": "$32 (4-12 years)"
-        },
-        "opening_hours": "10:00 AM - 5:00 PM daily",
-        "category": "Wildlife/Aquarium"
-    },
-    {
-        "name": "Marina Bay Sands SkyPark Observation Deck",
-        "description": "A large wooden observation deck offering breathtaking vistas of Marina Bay, the city skyline, and the Gardens by the Bay.",
-        "location": "Marina Bay (Bayfront MRT)",
-        "prices": {
-            "adult": "$32",
-            "child": "$28 (2-12 years)"
-        },
-        "opening_hours": "11:00 AM - 9:00 PM daily",
-        "category": "Sightseeing/Views"
-    },
-    {
-        "name": "Jewel Changi Airport",
-        "description": "A nature-themed entertainment and retail complex inside Changi Airport, featuring the world's tallest indoor waterfall (Rain Vortex).",
-        "location": "Changi Airport (Changi Airport MRT)",
-        "prices": {
-            "rain_vortex": "Free",
-            "canopy_park_admission": "$8 (Adult/Child)"
-        },
-        "opening_hours": "24 Hours (Rain Vortex: 11 AM - 10 PM; Canopy Park: 10 AM - 10 PM)",
-        "category": "Sightseeing/Shopping"
-    },
-    {
-        "name": "Merlion Park",
-        "description": "A popular landmark featuring the iconic Merlion statue spitting water into Marina Bay. Great for photos.",
-        "location": "Downtown (Raffles Place MRT)",
-        "prices": {
-            "admission": "Free"
-        },
-        "opening_hours": "24 Hours",
-        "category": "Sightseeing/Landmark"
-    }
-]
 
-# --- Pre-mapped Transit Routes ---
-TRANSIT_ROUTES = {
-    ("gardens by the bay", "universal studios singapore"): (
-        "Take the MRT Circle Line (Yellow) from Bayfront MRT to HarbourFront MRT (5 stops, approx. 10 mins).\n"
-        "From HarbourFront, head to VivoCity Level 3 and take the Sentosa Express monorail to Waterfront Station (approx. 5 mins).\n"
-        "Alternatively, you can walk across the Sentosa Boardwalk from VivoCity (approx. 15 mins, free admission).\n"
-        "Estimated cost: ~$2.50. Total travel time: ~20 mins."
-    ),
-    ("universal studios singapore", "gardens by the bay"): (
-        "Take the Sentosa Express monorail from Waterfront Station to VivoCity (HarbourFront MRT).\n"
-        "Take the Circle Line (Yellow) from HarbourFront MRT to Bayfront MRT (5 stops, approx. 10 mins).\n"
-        "Estimated cost: ~$2.50. Total travel time: ~20 mins."
-    ),
-    ("changi airport", "gardens by the bay"): (
-        "Take the East-West Line (Green) from Changi Airport MRT to Tanah Merah MRT (2 stops).\n"
-        "Cross the platform and take the East-West Line to Expo MRT, then transfer to the Downtown Line (Blue) directly to Bayfront MRT.\n"
-        "Estimated cost: ~$2.10. Total travel time: ~50 mins."
-    ),
-    ("gardens by the bay", "changi airport"): (
-        "Take the Downtown Line (Blue) from Bayfront MRT to Expo MRT.\n"
-        "Transfer to the East-West Line (Green) toward Tanah Merah MRT, then take the Airport line to Changi Airport MRT.\n"
-        "Estimated cost: ~$2.10. Total travel time: ~50 mins."
-    ),
-    ("changi airport", "universal studios singapore"): (
-        "Take the East-West Line (Green) from Changi Airport MRT to Tanah Merah MRT (2 stops).\n"
-        "Cross the platform and take the East-West Line to Outram Park MRT, then transfer to the North-East Line (Purple) to HarbourFront MRT.\n"
-        "From HarbourFront, head to VivoCity Level 3 and take the Sentosa Express to Waterfront Station.\n"
-        "Estimated cost: ~$2.60. Total travel time: ~70 mins."
-    ),
-    ("universal studios singapore", "changi airport"): (
-        "Take the Sentosa Express monorail from Waterfront Station to VivoCity (HarbourFront MRT).\n"
-        "Take the North-East Line (Purple) from HarbourFront MRT to Outram Park MRT.\n"
-        "Transfer to the East-West Line (Green) to Tanah Merah MRT, then take the airport train to Changi Airport MRT.\n"
-        "Estimated cost: ~$2.60. Total travel time: ~70 mins."
-    ),
-    ("merlion park", "gardens by the bay"): (
-        "Walk from Merlion Park across the Jubilee Bridge/Helix Bridge to Gardens by the Bay (approx. 20 mins, highly scenic walk).\n"
-        "Alternatively, take the Downtown Line (Blue) from Raffles Place MRT (walk 5 mins) to Bayfront MRT (1 stop).\n"
-        "Estimated cost: ~$1.40. Total travel time: ~10 mins."
-    ),
-    ("gardens by the bay", "merlion park"): (
-        "Take the Downtown Line (Blue) from Bayfront MRT to Raffles Place MRT (1 stop, walk 5 mins to Merlion Park).\n"
-        "Or take the scenic walk across Helix Bridge (approx. 20 mins).\n"
-        "Estimated cost: ~$1.40. Total travel time: ~10 mins."
-    ),
-    ("singapore zoo", "gardens by the bay"): (
-        "Take the Mandai Khatib Shuttle (bus) from Singapore Zoo to Khatib MRT Station (~15 mins).\n"
-        "Take the North-South Line (Red) from Khatib MRT to Newton MRT, then transfer to the Downtown Line (Blue) to Bayfront MRT.\n"
-        "Estimated cost: ~$3.00 (including shuttle). Total travel time: ~60 mins."
-    ),
-    ("gardens by the bay", "singapore zoo"): (
-        "Take the Downtown Line (Blue) from Bayfront MRT to Newton MRT, transfer to the North-South Line (Red) to Khatib MRT.\n"
-        "From Khatib MRT, take the Mandai Khatib Shuttle directly to Singapore Zoo (runs every 10 mins, cost $1).\n"
-        "Estimated cost: ~$3.00. Total travel time: ~60 mins."
-    )
+
+# Cache for OneMap token and its expiration timestamp
+ONEMAP_TOKEN_CACHE = {
+    "token": None,
+    "expires_at": 0
 }
+
+def get_onemap_token():
+    """Get a valid OneMap API access token dynamically or fall back to credentials/keys if they are tokens."""
+    import time
+    now = time.time()
+    if ONEMAP_TOKEN_CACHE["token"] and ONEMAP_TOKEN_CACHE["expires_at"] > now + 300:
+        return ONEMAP_TOKEN_CACHE["token"]
+        
+    email = os.getenv("ONEMAP_EMAIL")
+    password = os.getenv("ONEMAP_PASSWORD")
+    sdk_key = os.getenv("LTA_SDK_KEY")
+    
+    # Check if the user accidentally put a JWT token in ONEMAP_PASSWORD or LTA_SDK_KEY
+    for key_candidate in [password, sdk_key]:
+        if key_candidate and (len(key_candidate) > 100 or key_candidate.startswith("eyJ")):
+            return key_candidate
+            
+    if email and password:
+        try:
+            url = "https://www.onemap.gov.sg/api/auth/post/getToken"
+            payload = {
+                "email": email,
+                "password": password
+            }
+            response = requests.post(url, json=payload, timeout=10)
+            if response.status_code == 200:
+                res_data = response.json()
+                token = res_data.get("access_token")
+                if token:
+                    ONEMAP_TOKEN_CACHE["token"] = token
+                    ONEMAP_TOKEN_CACHE["expires_at"] = now + 250000
+                    logger.info("Generated new OneMap access token using credentials.")
+                    return token
+            logger.warning(f"OneMap getToken API returned status {response.status_code}: {response.text}")
+        except Exception as e:
+            logger.error(f"Error fetching token from OneMap: {e}")
+            
+    if sdk_key and len(sdk_key) > 50:
+        return sdk_key
+        
+    return None
+
 
 # --- Popular Singapore Landmarks for Location Matching ---
 LANDMARKS = {
@@ -444,28 +334,6 @@ def get_current_weather():
         return json.dumps({"status": "error", "message": str(e)})
 
 
-def search_attractions(query=None, category=None):
-    """Search for attractions by keyword or category."""
-    logger.info(f"Tool executed: search_attractions (query={query}, category={category})")
-    results = []
-    for att in ATTRACTIONS:
-        match = True
-        if category:
-            if category.lower() not in att["category"].lower():
-                match = False
-        if query:
-            q = query.lower()
-            in_name = q in att["name"].lower()
-            in_desc = q in att["description"].lower()
-            in_loc = q in att["location"].lower()
-            in_cat = q in att["category"].lower()
-            if not (in_name or in_desc or in_loc or in_cat):
-                match = False
-        if match:
-            results.append(att)
-    return json.dumps({"status": "success", "count": len(results), "attractions": results})
-
-
 def resolve_to_coords(loc_str):
     """Resolve a location string (landmark name or coordinates) to a tuple of (lat, lon)."""
     loc_clean = loc_str.lower().strip()
@@ -480,7 +348,38 @@ def resolve_to_coords(loc_str):
     except ValueError:
         pass
         
-    # Match against known landmarks
+    sdk_key = get_onemap_token()
+    
+    # Try querying OneMap Search API dynamically
+    if sdk_key:
+        try:
+            url = "https://www.onemap.gov.sg/api/common/elastic/search"
+            params = {
+                "searchVal": loc_str,
+                "returnGeom": "Y",
+                "getAddrDetails": "N",
+                "pageNum": 1
+            }
+            headers = {
+                "Authorization": sdk_key
+            }
+            if len(sdk_key) > 50 and not sdk_key.startswith("Bearer "):
+                headers["Authorization"] = f"Bearer {sdk_key}"
+                
+            response = requests.get(url, params=params, headers=headers, timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                results = data.get("results", [])
+                if results:
+                    first_res = results[0]
+                    lat = float(first_res["LATITUDE"])
+                    lon = float(first_res["LONGITUDE"])
+                    logger.info(f"Resolved location '{loc_str}' dynamically via OneMap Search API: ({lat}, {lon})")
+                    return lat, lon
+        except Exception as e:
+            logger.error(f"Error resolving location '{loc_str}' via OneMap Search API: {e}")
+
+    # Match against known landmarks as fallback
     for name, coords in LANDMARKS.items():
         if name.lower() in loc_clean or loc_clean in name.lower():
             return coords
@@ -530,7 +429,7 @@ def get_transit_route(origin, destination):
     origin_coords = resolve_to_coords(origin)
     dest_coords = resolve_to_coords(destination)
     
-    sdk_key = os.getenv("LTA_SDK_KEY")
+    sdk_key = get_onemap_token()
     
     # Try calling OneMap Routing API if coordinates and token are available
     if origin_coords and dest_coords and sdk_key:
@@ -571,20 +470,6 @@ def get_transit_route(origin, destination):
         except Exception as e:
             logger.error(f"Error calling OneMap Routing API: {e}")
             
-    # Fallback to pre-mapped transit table
-    origin_clean = origin.lower().strip()
-    destination_clean = destination.lower().strip()
-    
-    # Match names or nearby landmarks in pre-defined table
-    for (o, d), route in TRANSIT_ROUTES.items():
-        if (o in origin_clean or origin_clean in o) and (d in destination_clean or destination_clean in d):
-            return json.dumps({
-                "status": "success",
-                "origin": origin,
-                "destination": destination,
-                "directions": route
-            })
-            
     # General offline instructions fallback
     directions = (
         f"To travel from '{origin}' to '{destination}' in Singapore:\n"
@@ -593,9 +478,16 @@ def get_transit_route(origin, destination):
         "3. For customized public bus or train routes, we recommend searching 'Singapore transit directions' or using OneMap/Google Maps routing."
     )
     
-    # Add a hint about live API failing
+    # Add a hint about live API failing or configuration missing
     if sdk_key:
-        directions = "⚠️ Note: Live routing API query failed (please check your LTA_SDK_KEY). Displaying default offline directions:\n\n" + directions
+        directions = "⚠️ Note: Live routing API query failed. Displaying default offline directions:\n\n" + directions
+    else:
+        directions = (
+            "⚠️ Note: OneMap authentication failed or credentials are not configured. "
+            "To enable live transit routing, please register a free account at onemap.gov.sg and "
+            "add ONEMAP_EMAIL and ONEMAP_PASSWORD to your .env file.\n\n"
+            "Displaying default offline directions:\n\n" + directions
+        )
         
     return json.dumps({
         "status": "partial_match",
@@ -699,39 +591,18 @@ TOOLS = [
     {
         "type": "function",
         "function": {
-            "name": "search_attractions",
-            "description": "Search Singapore tourist attractions, descriptions, opening hours, categories, and admission ticket prices.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "Keyword to search in attraction names, locations, categories or descriptions (e.g. 'zoo', 'admission price', 'free')."
-                    },
-                    "category": {
-                        "type": "string",
-                        "description": "Optional category filter (e.g., 'Wildlife/Zoo', 'Nature/Park', 'Theme Park/Family', 'Sightseeing/Views')."
-                    }
-                },
-                "required": []
-            }
-        }
-    },
-    {
-        "type": "function",
-        "function": {
             "name": "get_transit_route",
-            "description": "Get transit directions (MRT/bus trains) between popular tourist attractions or stations in Singapore.",
+            "description": "Get transit directions (MRT/bus trains) between popular locations or stations in Singapore.",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "origin": {
                         "type": "string",
-                        "description": "The starting attraction name, location name, or latitude,longitude coordinates (e.g. 'Changi Airport', '1.2989,103.8462')."
+                        "description": "The starting location name or latitude,longitude coordinates (e.g. 'Changi Airport', '1.2989,103.8462')."
                     },
                     "destination": {
                         "type": "string",
-                        "description": "The destination attraction name or location (e.g., 'Universal Studios Singapore', 'Singapore Zoo')."
+                        "description": "The destination location name (e.g., 'Marina Bay Sands', 'East Coast Park')."
                     }
                 },
                 "required": ["origin", "destination"]
@@ -773,12 +644,11 @@ def run_agent(user_message, chat_history=None, chat_id=None):
         
     system_prompt = (
         "You are a helpful, professional travel and family outing agent for Singapore. "
-        "You can check current weather, search attractions with descriptions & prices, "
-        "provide MRT/bus routes between popular points, and query bus arrival times at bus stops. "
-        "Always make sure to explain admission prices clearly if requested. "
+        "You can check current weather, provide MRT/bus routes between popular points, "
+        "and query bus arrival times at bus stops. "
         "If the user asks about travelling somewhere, check if your transit route tool has directions. "
         "Keep responses engaging, concise, and structured with clear markdown formatting. "
-        "Suggest next steps or other attractions/transport queries where appropriate."
+        "Suggest next steps or other transport queries where appropriate."
     )
     
     # Inject user's shared location if available
@@ -811,7 +681,6 @@ def run_agent(user_message, chat_history=None, chat_id=None):
     
     available_tools = {
         "get_current_weather": get_current_weather,
-        "search_attractions": search_attractions,
         "get_transit_route": get_transit_route,
         "get_bus_arrival": get_bus_arrival
     }
@@ -891,8 +760,7 @@ if bot:
             "🇸🇬 *Welcome to the Singapore Parents Bot!* 🇸🇬\n\n"
             "I'm here to help you plan your family trips in Singapore! You can ask me:\n"
             "🌤️ *Weather:* \"What's the weather like right now?\"\n"
-            "🎡 *Attractions & Prices:* \"Tell me about Gardens by the Bay\" or \"Which attractions are free?\"\n"
-            "🚇 *Directions:* \"How do I get from Changi Airport to MBS?\" or \"How do I get to Singapore Zoo from here?\"\n"
+            "🚇 *Directions:* \"How do I get from Changi Airport to City Hall?\" or \"How do I get to East Coast Park from here?\"\n"
             "🚌 *Bus Arrivals:* \"When is the next bus arriving at stop 01112?\"\n\n"
             "📍 *Tip:* You can share your current location using the attachment button at any time, and I'll use it to give you directions from \"here\"!"
         )
@@ -909,7 +777,7 @@ if bot:
         reply_text = (
             f"📍 *Location Saved!*\n\n"
             f"I see you are near *{nearest}*. "
-            f"Now you can ask me things like: \"How do I get to Gardens by the Bay from here?\""
+            f"Now you can ask me things like: \"How do I get to East Coast Park from here?\""
         )
         bot.reply_to(message, reply_text, parse_mode="Markdown", reply_markup=telebot.types.ReplyKeyboardRemove())
 

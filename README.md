@@ -1,13 +1,12 @@
 # Singapore Parents Bot
 
-Singapore Parents Bot is a helper agent designed for families planning outings and activities in Singapore. It uses a Telegram interface powered by a language model (LLM) that acts as an agent. The bot can automatically check the weather, query local attractions, plan transit routes, and estimate bus arrivals depending on what you ask.
+Singapore Parents Bot is a helper agent designed for families planning outings and activities in Singapore. It uses a Telegram interface powered by a language model (LLM) that acts as an agent. The bot can automatically check the weather, plan transit routes, and estimate bus arrivals depending on what you ask.
 
 ---
 
 ## Features
 
 - **Current Weather:** Retrieves live weather conditions and forecasts across Singapore.
-- **Attractions Search:** Searches a database of family-friendly attractions in Singapore, showing descriptions, location information, and ticket prices (including free options).
 - **Directions and Transit:** Finds transit routes and gives instructions for traveling between two locations in Singapore.
 - **Live Bus Arrivals:** Fetches real-time bus arrival timings for any bus stop code using the LTA DataMall API. If no LTA API key is provided, the bot falls back to simulated, realistic arrival times.
 
@@ -74,6 +73,11 @@ LLM_API_KEY=your_llm_api_key_here
 # LTA DataMall Configuration (Optional)
 # If left blank, the bot will fall back to simulated bus arrival times.
 LTA_ACCOUNT_KEY=your_lta_account_key_here
+LTA_SDK_KEY=your_onemap_key_or_token_here
+
+# OneMap Configuration (Optional, for live transit routing and geocoding)
+ONEMAP_EMAIL=your_onemap_email_here
+ONEMAP_PASSWORD=your_onemap_password_here
 ```
 
 ---
@@ -99,7 +103,6 @@ Listening for messages... Press Ctrl+C to stop.
 Find your bot on Telegram and type `/start` to see the greeting message. You can speak to it naturally. Here are some examples of what you can ask:
 
 - *"What is the weather like right now?"*
-- *"Show me free things to do with kids in Singapore"* or *"Tell me about Gardens by the Bay"*
 - *"How do I get from Changi Airport to Marina Bay Sands?"*
 - *"How do I get to East Coast Park from here?"* (you can share your location first or follow the prompt to send it)
 - *"When is the next bus arriving at stop 01112?"*
